@@ -4,6 +4,8 @@ var azure = require('azure-storage');
 var childProcess = require('child_process');
 var fs = require("fs");
 var http = require('http');
+var _socket;
+
 var app = http.createServer(function (req, res) {
     'use strict';
     res.writeHead(200, { 'Content-Type': 'text/plain' });
@@ -11,10 +13,10 @@ var app = http.createServer(function (req, res) {
 }).listen(2001);
 
 var _socket;
-function startOpenCv()
+function startImageProcessing(type)
 {
     
- childProcess.exec('/usr/demos/facedetect/./facedetection', function (error, stdout, stderr) {
+ childProcess.exec('/usr/demos/adventtracker/./imageprocessor \'' + type + '\'', function (error, stdout, stderr) {
    if (error) {
      console.log(error.stack);
      console.log('OpenCv: '+error.code);
@@ -25,20 +27,25 @@ function startOpenCv()
  });
 }
 
-function startBlobUpload(filename, filetoUpload)
+function startBlobUpload(filename, filetoUpload, type)
 {
     var retryOperations = new azure.ExponentialRetryPolicyFilter();
-    var blobService =       azure.createBlobService('intelblobstorage','9cgGBbKXge9ZbpI3rjsltIdS6fxU4M7vby+xyQcwYlFxG94w8HK5vPFPzQsDJA4LaKLYrl7snW7Nr82Ioi9I5g==').withFilter(retryOperations);
+    var blobService =               azure.createBlobService('intelblobstorage','9cgGBbKXge9ZbpI3rjsltIdS6fxU4M7vby+xyQcwYlFxG94w8HK5vPFPzQsDJA4LaKLYrl7snW7Nr82Ioi9I5g==').withFilter(retryOperations);
 
-    blobService.createContainerIfNotExists('adventtruck', {publicAccessLevel : 'blob'}, function(error, result, response){
+    blobService.createContainerIfNotExists('adventtracker', {publicAccessLevel : 'blob'}, function(error, result, response){
       if(!error){
         // Container exists and is private
       }
     });
 
-    blobService.createBlockBlobFromLocalFile('adventtruck', filename, filetoUpload, function(error, result, response){
+    blobService.createBlockBlobFromLocalFile('adventtracker', filename, filetoUpload, function(error, result, response){
         if(!error){
             // file uploaded
+           if(_socket != null)
+           {
+               if(type == "video") sendMessageToClient("videourl", filename);
+               else  sendMessageToClient("imageurl", filename);
+           }
             console.log("uploaded");
         }
         else
@@ -48,62 +55,79 @@ function startBlobUpload(filename, filetoUpload)
         
     });
     
-blobService.listBlobsSegmented('adventtruck', null, function(error, result, response){
-  if(!error){
-    // result contains the entries
-  }
-    console.log(result);
-    console.log(response);
-});
+    blobService.listBlobsSegmented('adventtracker', null, function(error, result, response){
+      if(!error){
+        // result contains the entries
+      }
+        console.log(result);
+        console.log(response);
+    });
     
 }
-function startImageServer()
-{
- childProcess.exec('http-server /usr/demos/facedetect -p2002 -c-1', function (error, stdout, stderr) {
-   if (error) {
-     console.log(error.stack);
-     console.log('Image server Error Code: '+error.code);
-   }
-   console.log('Image Server: '+stdout);
-   console.log('Image Server STDERR: '+stderr);
- });
-}
 
-//startImageServer();
-//startOpenCv();
-
-
-fs.watch('/usr/demos/facedetect/images', function (event, filename) {
+var imageFile = "";
+fs.watch('/usr/demos/adventtracker/images', function (event, filename) {
     //Need to add these conditions as fs.watch tend to file same event multiple times
-    if (filename && event == "change" && imageFile != filename) {
+    if (event == "change" && imageFile != filename) {
        //console.log('Image File: ' + filename);
         imageFile = filename;
+        var unqName  = "";
         if(imageFile.indexOf("facefound") != -1)
         {
             console.log('Sending image: ' + filename);
-           if(_socket != null)_socket.emit("imageurl", filename);
+            unqName = "face_" +  getUniqueId(); 
+            startBlobUpload(uniqueName ,'/usr/demos/adventtracker/images/' + _videofilename,"image");            
         }        
+        else if(imageFile.indexOf("picture") != -1)
+        {
+            unqName = "picture_" +  getUniqueId(); 
+            startBlobUpload(uniqueName ,'/usr/demos/adventtracker/images/' + _videofilename,"image");            
+        }
+        
     }
 });
-var videoFile;
-fs.watch('/usr/demos/facedetect/videos', function (event, filename) {
+function sendMessageToClient(key, value)
+{
+    if(_socket != null)_socket.emit(key,value);
+}
+
+var commandfile = "";
+fs.watch('/usr/demos/adventtracker/voice', function (event, filename) {
     //Need to add these conditions as fs.watch tend to file same event multiple times
-    if (event == "change" && videoFile != filename) {
+    if (event == "change" && commandfile != filename) {
        //console.log('Image File: ' + filename);
-        videoFile = filename;
-        console.log('Sending video: ' + filename);
-       if(_socket != null)_socket.emit("videourl", filename.replace(".mp4",""));
+        commandfile = filename;
+        if(commandfile.indexOf("command") != -1)
+        {
+
+            var commandvalue = fs.readFileSync(filename, "utf8");
+            console.log('Received Command : ' + commandvalue);
+            if(commandvalue == "findfaces")startImageProcessing("findfaces");
+            else if(commandvalue == "picture")startImageProcessing("picture");
+            else if(commandvalue == "startrecording")startCaptureing();
+            else if(commandvalue == "stoprecording")stopCapturing();            
+        }        
+        else if(commandfile.indexOf("dictation") != -1)
+        {
+            sendMessageToClient("dictation", fs.readFileSync(filename, "utf8"));
+        }
     }
 });
+
+function getUniqueId()
+{
+    return (new Date()).getTime();
+}
 
 var avconv = require('avconv');
 var stream = null;
 var _videofilename = null;
-_videofilename = (new Date()).getTime() + '.mp4';
-startCaptureing();
-stopCapturing();
+_videofilename =  getUniqueId() + '.mp4';
+//startCaptureing();
+//stopCapturing();
 function startCaptureing()
 {
+    stopCapturing();
     var params = [
         '-f', 'video4linux2',
         '-r', '22',
@@ -139,7 +163,7 @@ function stopCapturing()
 {
     setTimeout(function(){
         stream.kill();
-    },15000);
+    },20000);
 }
 function convertToWebMp4()
 {
@@ -152,7 +176,7 @@ function convertToWebMp4()
         '-strict', 'experimental', 
         '-acodec', 'aac',
         '-b:a', '128k',
-        '-y', '/usr/demos/facedetect/videos/' + _videofilename 
+        '-y', '/usr/demos/adventtracker/videos/' + _videofilename 
     ];
 
     // Returns a duplex stream
@@ -165,17 +189,13 @@ function convertToWebMp4()
 
     streamconvert.on('progress', function(progress) {
         console.log((progress.toFixed(2) * 100) + "%");
-        /*
-        Progress is a floating number between 0 ... 1 that keeps you
-        informed about the current avconv conversion process.
-        */
     });
     
     streamconvert.once('exit', function(exitCode, signal, metadata) {
         console.log("------------------COMPLETED CONVERSION----------------------------");
-        startBlobUpload(_videofilename.replace(".mp4",""),'/usr/demos/facedetect/videos/' + _videofilename);
-
+        startBlobUpload(_videofilename.replace(".mp4",""),'/usr/demos/adventtracker/videos/' + _videofilename,"video");
     });
+    
 }
 
 var io = require('socket.io')(app);
@@ -189,7 +209,7 @@ io.on('connection', function (socket) {
     socket.emit('connected', 'Welcome');
     socket.on('startcapture', function (data) {
         console.log('Image capture started');
-        startOpenCv();
+        //startOpenCv();
     });
 
     
@@ -199,7 +219,3 @@ io.on('connection', function (socket) {
         console.log('user disconnected');
     });
 });
-
-
-
-

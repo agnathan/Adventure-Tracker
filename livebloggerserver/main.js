@@ -6,6 +6,92 @@ var fs = require("fs");
 var http = require('http');
 var _socket;
 
+//Connecting to IBM BlueMix
+var ORG = 'eh51jw';
+var TYPE = 'adventureTracker';
+var ID = 'fcc2de31b8ac';
+var AUTHTOKEN = 'bHWtfhnopm(6tuBUnx';
+var mqtt    = require('mqtt');
+var PROTOCOL = 'mqtt';
+var BROKER = ORG + '.messaging.internetofthings.ibmcloud.com';
+var PORT = 1883;
+//Create the url string
+var URL = PROTOCOL + '://' + BROKER;
+URL += ':' + PORT; 
+var CLIENTID= 'd:' + ORG;
+CLIENTID += ':' + TYPE;
+CLIENTID += ':' + ID;
+var AUTHMETHOD = 'use-token-auth';
+var client  = mqtt.connect(URL, { clientId: CLIENTID, username: AUTHMETHOD, password: AUTHTOKEN });
+var TOPIC = 'iot-2/evt/status/fmt/json';
+
+//Sensor list including library
+var GPSSensor = require('jsupm_ublox6');
+// Instantiate a Ublox6 GPS device on uart 0.
+var myGPSSensor = new GPSSensor.Ublox6(0);
+// Load Grove module
+var groveSensor = require('jsupm_grove');
+// Create the temperature sensor object using AIO pin 0
+var Temperature = new groveSensor.GroveTemp(0);
+var groveGas = require('jsupm_gas');
+//Connect Air quality to A1
+var airQualityPin = new groveGas.TP401(1);
+
+client.on('connect', function () {
+  setInterval(function(){
+      client.publish(TOPIC, '{"d":{"AirQuality":' + airQualityPin.getSample() + ', "Temperature":' + getTemperature() + '}}');
+      var x = '{"d":{"AirQuality":' + airQualityPin.getSample() + ', "Temperature":' + getTemperature() + '}}';
+      console.log(x);
+  }, 2000);//Keeps publishing every 2000 milliseconds.
+});
+
+var getTemperature = function()
+{
+    var celsius = Temperature.value();
+    var fahrenheit = celsius * 9.0/5.0 + 32.0;
+    return parseFloat(fahrenheit).toFixed(2);   
+}
+
+if (!myGPSSensor.setupTty(GPSSensor.int_B9600))
+{
+	console.log("Failed to setup tty port parameters");
+	process.exit(0);
+}
+
+var bufferLength = 256;
+var nmeaBuffer  = new GPSSensor.charArray(bufferLength);
+
+var getGPSCoordinates = function()
+{
+	
+    if (myGPSSensor.dataAvailable())
+	{
+		var rv = myGPSSensor.readData(nmeaBuffer, bufferLength);
+
+		var GPSData, dataCharCode, isNewLine, lastNewLine;
+		var numlines= 0;
+		if (rv > 0)
+		{
+			GPSData = "";
+			// read only the number of characters
+			// specified by myGPSSensor.readData
+            console.log("This is the rv ");
+            console.log(rv);
+			for (var x = 0; x < rv; x++)
+				GPSData += nmeaBuffer.getitem(x);
+			process.stdout.write(GPSData)
+            return GPSData;
+		}
+
+		if (rv < 0) // some sort of read error occured
+		{
+			console.log("Port read error.");
+			//process.exit(0);
+		}
+	}
+    return 0;
+}
+
 var app = http.createServer(function (req, res) {
     'use strict';
     res.writeHead(200, { 'Content-Type': 'text/plain' });
@@ -99,11 +185,10 @@ fs.watch('/usr/demos/adventtracker/voice', function (event, filename) {
         commandfile = filename;
         if(commandfile.indexOf("command") != -1)
         {
-
             var commandvalue = fs.readFileSync(filename, "utf8");
             console.log('Received Command : ' + commandvalue);
             if(commandvalue == "findfaces")startImageProcessing("findfaces");
-            else if(commandvalue == "picture")startImageProcessing("picture");
+            else if(commandvalue == "takepicture")startImageProcessing("picture");
             else if(commandvalue == "startrecording")startCaptureing();
             else if(commandvalue == "stoprecording")stopCapturing();            
         }        

@@ -1,0 +1,154 @@
+Language model created by QuickLM on Tue Aug  4 02:04:05 EDT 2015
+Copyright (c) 1996-2010 Carnegie Mellon University and Alexander I. Rudnicky
+
+The model is in standard ARPA format, designed by Doug Paul while he was at MITRE.
+
+The code that was used to produce this language model is available in Open Source.
+Please visit http://www.speech.cs.cmu.edu/tools/ for more information
+
+The (fixed) discount mass is 0.5. The backoffs are computed using the ratio method.
+This model based on a corpus of 27 sentences and 36 words
+
+\data\
+ngram 1=36
+ngram 2=61
+ngram 3=34
+
+\1-grams:
+-0.8141 </s> -0.3010
+-0.8141 <s> -0.2287
+-2.2455 A -0.2287
+-2.2455 ADVENTURE -0.2287
+-2.2455 AM -0.2287
+-2.2455 ARE -0.2287
+-2.2455 CHANGE -0.2287
+-2.2455 COMMAND -0.2986
+-2.2455 DEMO -0.2287
+-2.2455 DICTATION -0.2287
+-2.2455 FACES -0.2287
+-2.2455 FIND -0.2287
+-2.2455 FUN -0.2287
+-2.2455 GIVING -0.2287
+-2.2455 I -0.2287
+-2.2455 IS -0.2287
+-2.2455 LIVE -0.2287
+-2.2455 MODE -0.2986
+-2.2455 MUCH -0.2287
+-2.2455 NO -0.2287
+-2.2455 OF -0.2287
+-2.2455 PICTURE -0.2986
+-2.2455 SEND -0.2986
+-2.2455 SO -0.2287
+-2.2455 START -0.2986
+-2.2455 STOP -0.2287
+-2.2455 SURE -0.2287
+-2.2455 TAKE -0.2986
+-2.2455 THE -0.2287
+-2.2455 THIS -0.2287
+-2.2455 TO -0.2287
+-2.2455 TRACKER -0.2287
+-2.2455 VIDEO -0.2986
+-2.2455 WANT -0.2287
+-2.2455 YES -0.2287
+-2.2455 YOU -0.2287
+
+\2-grams:
+-1.7324 <s> A 0.0000
+-1.7324 <s> ADVENTURE 0.0000
+-1.7324 <s> AM 0.0000
+-1.7324 <s> ARE 0.0000
+-1.7324 <s> CHANGE 0.0000
+-1.7324 <s> DEMO 0.0000
+-1.7324 <s> FACES 0.0000
+-1.7324 <s> FIND 0.0000
+-1.7324 <s> FUN 0.0000
+-1.7324 <s> GIVING 0.0000
+-1.7324 <s> I 0.0000
+-1.7324 <s> IS 0.0000
+-1.7324 <s> LIVE 0.0000
+-1.7324 <s> MODE 0.0000
+-1.7324 <s> MUCH 0.0000
+-1.7324 <s> NO 0.0000
+-1.7324 <s> OF 0.0000
+-1.7324 <s> SO 0.0000
+-1.7324 <s> SURE 0.0000
+-1.7324 <s> TAKE 0.0000
+-1.7324 <s> THE 0.0000
+-1.7324 <s> THIS 0.0000
+-1.7324 <s> TO 0.0000
+-1.7324 <s> TRACKER 0.0000
+-1.7324 <s> WANT 0.0000
+-1.7324 <s> YES 0.0000
+-1.7324 <s> YOU 0.0000
+-0.3010 A </s> -0.3010
+-0.3010 ADVENTURE </s> -0.3010
+-0.3010 AM </s> -0.3010
+-0.3010 ARE </s> -0.3010
+-0.3010 CHANGE </s> -0.3010
+-0.3010 COMMAND DICTATION 0.0000
+-0.3010 DEMO </s> -0.3010
+-0.3010 DICTATION </s> -0.3010
+-0.3010 FACES </s> -0.3010
+-0.3010 FIND </s> -0.3010
+-0.3010 FUN </s> -0.3010
+-0.3010 GIVING </s> -0.3010
+-0.3010 I </s> -0.3010
+-0.3010 IS </s> -0.3010
+-0.3010 LIVE </s> -0.3010
+-0.3010 MODE COMMAND 0.0000
+-0.3010 MUCH </s> -0.3010
+-0.3010 NO </s> -0.3010
+-0.3010 OF </s> -0.3010
+-0.3010 PICTURE SEND 0.0000
+-0.3010 SEND VIDEO 0.0000
+-0.3010 SO </s> -0.3010
+-0.3010 START STOP 0.0000
+-0.3010 STOP </s> -0.3010
+-0.3010 SURE </s> -0.3010
+-0.3010 TAKE PICTURE 0.0000
+-0.3010 THE </s> -0.3010
+-0.3010 THIS </s> -0.3010
+-0.3010 TO </s> -0.3010
+-0.3010 TRACKER </s> -0.3010
+-0.3010 VIDEO START 0.0000
+-0.3010 WANT </s> -0.3010
+-0.3010 YES </s> -0.3010
+-0.3010 YOU </s> -0.3010
+
+\3-grams:
+-0.3010 <s> A </s>
+-0.3010 <s> ADVENTURE </s>
+-0.3010 <s> AM </s>
+-0.3010 <s> ARE </s>
+-0.3010 <s> CHANGE </s>
+-0.3010 <s> DEMO </s>
+-0.3010 <s> FACES </s>
+-0.3010 <s> FIND </s>
+-0.3010 <s> FUN </s>
+-0.3010 <s> GIVING </s>
+-0.3010 <s> I </s>
+-0.3010 <s> IS </s>
+-0.3010 <s> LIVE </s>
+-0.3010 <s> MODE COMMAND
+-0.3010 <s> MUCH </s>
+-0.3010 <s> NO </s>
+-0.3010 <s> OF </s>
+-0.3010 <s> SO </s>
+-0.3010 <s> SURE </s>
+-0.3010 <s> TAKE PICTURE
+-0.3010 <s> THE </s>
+-0.3010 <s> THIS </s>
+-0.3010 <s> TO </s>
+-0.3010 <s> TRACKER </s>
+-0.3010 <s> WANT </s>
+-0.3010 <s> YES </s>
+-0.3010 <s> YOU </s>
+-0.3010 COMMAND DICTATION </s>
+-0.3010 MODE COMMAND DICTATION
+-0.3010 PICTURE SEND VIDEO
+-0.3010 SEND VIDEO START
+-0.3010 START STOP </s>
+-0.3010 TAKE PICTURE SEND
+-0.3010 VIDEO START STOP
+
+\end\

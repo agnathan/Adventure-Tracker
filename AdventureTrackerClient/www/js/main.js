@@ -42,17 +42,19 @@ function validateIP() {
             //Load page with transition
             $.ui.loadContent("#main", false, false, "fade");
 
-            var documentcontainer  = document.getElementById("documentcontainer");
-
+            var documentcontainer  = document.getElementById("main");
+            var azuremediaserver = "https://intelblobstorage.blob.core.windows.net/adventtracker/";
             socket.on("dictation", function (text) {
                 var dictation = document.createElement('div');
+                alert(text);
                 dictation.innerHTML = text;
                 documentcontainer.appendChild(dictation); 
             });
 
             socket.on("videourl", function (videoUrl) {
                 videoUrl += "?time=" + (new Date().getTime());
-                documentcontainer.appendChild(createVideo("https://intelblobstorage.blob.core.windows.net/adventtruck/" + videoUrl));
+                console.log(videoUrl);
+                documentcontainer.appendChild(createVideo(azuremediaserver + videoUrl));
             });
 
                 //createVideo('https://intelblobstorage.blob.core.windows.net/adventtruck/1437719774257?time=' + getUniqueId());
@@ -62,26 +64,30 @@ function validateIP() {
                 return (new Date()).getTime();
             }
 
+
             function createVideo(source)
             {
                 var video = document.createElement('video');
                 video.setAttribute("controls","true");
                 video.src = source;
                 video.id = + getUniqueId();
+                video.className = "video";
                 video.autoPlay = true;
                 return video;
             }
 
             
+            //NOT BEING USED RIGHT NOW
             socket.on("faces", function (faces) {
                 var images = JSON.parse(faces);
+                console.log(faces);
                 var imageUrl = "";
                 for(i=0;i<images.length;i++)
                 {
                     imageUrl = images[0].src + "?time=" + (new Date().getTime()); 
                     console.log(imageUrl);
                     var img = document.createElement('img');
-                    img.src = "https://intelblobstorage.blob.core.windows.net/adventtruck/" + imageUrl;
+                    img.src = azuremediaserver + imageUrl;
                     img.onload = function(){
                         documentcontainer.appendChild(img);
                         console.log(img.src);
@@ -92,16 +98,33 @@ function validateIP() {
                 }
             });
 
-            
-            socket.on("picture", function (imageUrl) {
-                var imageUrl += "?time=" + (new Date().getTime());
+            socket.on("face", function (imageUrl) {
+                var imageUrl = imageUrl + "?time=" + (new Date().getTime());
+                console.log(imageUrl);
                 var img = document.createElement('img');
-                img.src = "https://intelblobstorage.blob.core.windows.net/adventtruck/" + imageUrl;
+                img.src = azuremediaserver + imageUrl;
+                img.className = "face";
                 img.onload = function(){
                     documentcontainer.appendChild(img);
                     console.log(img.src);
-                    img.style.width = "300px";
-                    img.style.height = "300px";
+                    img.style.width = "100px";
+                    img.style.height = "100px";
+                    img = null;
+                }
+            });
+            
+            socket.on("picture", function (imageUrl) {
+                var imageUrl = imageUrl + "?time=" + (new Date().getTime());
+                console.log(imageUrl);
+                var img = document.createElement('img');
+                img.src = azuremediaserver + imageUrl;
+                img.className = "picture";
+                img.style.display = "inline-block";
+                img.onload = function(){
+                    documentcontainer.appendChild(img);
+                    console.log(img.src);
+                    img.style.width = "320px";
+                    img.style.height = "280px";
                     img = null;
                 }
             });

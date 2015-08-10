@@ -15,7 +15,7 @@ void findFaces(Mat frame);
 
 /** Global variables */
 String face_cascade_name =
-		"haarcascade_frontalface_alt.xml";
+		"/usr/demos/adventtracker/haarcascade_frontalface_alt.xml";
 CascadeClassifier face_cascade;
 int counter = 0;
 
@@ -23,6 +23,7 @@ int main(int argc, const char* argv[]) {
 
 	const string command = argv[1];           // the source file name
 	cout << command;
+	srand(time(NULL));
 
 	Mat frame;
 	if (command == "picture") {
@@ -39,8 +40,14 @@ int main(int argc, const char* argv[]) {
 		}
 		capture >> frame;
 
+		int uniqueNumber = rand() * 100;
+		std::stringstream temp;
+		std::stringstream ss1;
 
-		imwrite("/usr/demos/adventtracker/images/picture.png", frame);
+		temp.str("");
+		temp << "/usr/demos/adventtracker/images/picture" << uniqueNumber << ".png";
+
+		imwrite(temp.str(), frame);
 
 		cout << "Finished writing" << endl;
 		capture.release();
@@ -60,9 +67,9 @@ int main(int argc, const char* argv[]) {
 		};
 		try {
 		system("exec rm -r /usr/demos/adventtracker/images/*");
-		for (counter = 0; counter < 10; counter++)
+		//for (counter = 0; counter < 2; counter++)
 		{
-			printf("Take #: %d \n", counter);
+			//printf("Take #: %d \n", counter);
 			VideoCapture capture(0); //0=default, -1=any camera, 1..99=your camera
 			capture.set(CV_CAP_PROP_FRAME_WIDTH, 320);
 			capture.set(CV_CAP_PROP_FRAME_HEIGHT, 240);
@@ -76,14 +83,16 @@ int main(int argc, const char* argv[]) {
 					findFaces(frame);
 			} else {
 				printf(" --(!) No captured frame -- Break!");
-				break;
+				//break;
 			}
 			int c = waitKey(10);
 			capture.release();
+			/*
 			if ((char) c == 'c') {
 				capture.release();
 				break;
 			}
+			*/
 		}
 		} catch (cv::Exception ex) {
 			cout << ex.msg;
@@ -104,10 +113,10 @@ void findFaces(Mat frame) {
 	std::stringstream temp;
 	std::stringstream ss1;
 
-	temp.str("");
-	temp << "/usr/demos/adventtracker/images/picture" << counter << ".png";
+	//temp.str("");
+	//temp << "/usr/demos/adventtracker/images/picture" << counter << ".png";
 
-	imwrite(temp.str(), frame);
+	//imwrite(temp.str(), frame);
 
 	ss1 << "{\"id\":" << counter << ",\"type\": \"original\",\"path\":" << "\""
 			<< temp.str() << "\"" << "}";
@@ -133,7 +142,8 @@ void findFaces(Mat frame) {
 				faces[i].height + 10);
 		Mat image_roi = frame(roi);
 		temp.str("");
-		temp << "/usr/demos/adventtracker/images/facefound" << counter << "_" << i << ".png";
+		int uniqueNumber = rand() * 100;
+		temp << "/usr/demos/adventtracker/images/facefound" << uniqueNumber << ".png";
 		imwrite(temp.str(), image_roi);
 
 		ss1 << "{\"path\":" << "\"" << temp.str() << "\"}" << ",";
@@ -166,9 +176,9 @@ void findFaces(Mat frame) {
 	}
 
 	//Picture with eclipse marking the face
-	temp.str("");
-	temp << "/usr/demos/adventtracker/images/allfaces" << counter << ".png";
-	imwrite(temp.str(), frame);
+	//temp.str("");
+	//temp << "/usr/demos/adventtracker/images/allfaces" << counter << ".png";
+	//imwrite(temp.str(), frame);
 
 	ss1.str("");
 	ss1 << "{\"id\":" << counter << ",\"type\": \"allfaces\", \"path\":" << "\""

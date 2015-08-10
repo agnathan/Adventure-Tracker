@@ -4,6 +4,7 @@ var azure = require('azure-storage');
 var childProcess = require('child_process');
 var fs = require("fs");
 var http = require('http');
+var sleep = require('sleep');
 var _socket;
 
 //Connecting to IBM BlueMix
@@ -128,10 +129,21 @@ function startBlobUpload(filename, filetoUpload, type)
             // file uploaded
            if(_socket != null)
            {
-               if(type == "video") sendMessageToClient("videourl", filename);
-               else  sendMessageToClient("imageurl", filename);
+               if(type == "video") 
+               {
+                   sendMessageToClient("videourl", filename);
+                   _videofilename = "";
+               }
+               else if(type == "image")
+               {
+                   sendMessageToClient("picture", filename);
+               }
+               else
+               {
+                   sendMessageToClient("face", filename);
+               }
            }
-            console.log("uploaded");
+            console.log(filename + " uploaded successfully");
         }
         else
         {
@@ -139,15 +151,6 @@ function startBlobUpload(filename, filetoUpload, type)
         }
         
     });
-    
-    blobService.listBlobsSegmented('adventtracker', null, function(error, result, response){
-      if(!error){
-        // result contains the entries
-      }
-        console.log(result);
-        console.log(response);
-    });
-    
 }
 
 var imageFile = "";
@@ -160,43 +163,49 @@ fs.watch('/usr/demos/adventtracker/images', function (event, filename) {
         if(imageFile.indexOf("facefound") != -1)
         {
             console.log('Sending image: ' + filename);
-            unqName = "face_" +  getUniqueId(); 
-            startBlobUpload(unqName ,'/usr/demos/adventtracker/images/' + imageFile,"image");            
+            unqName = "face_" +  getUniqueId();
+            sleep.sleep(1);
+            startBlobUpload(unqName ,'/usr/demos/adventtracker/images/' + imageFile,"face");            
+            
         }        
         else if(imageFile.indexOf("picture") != -1)
         {
             unqName = "picture_" +  getUniqueId(); 
             console.log("Sending images from blog");
-            startBlobUpload(unqName ,'/usr/demos/adventtracker/images/' + imageFile,"image");            
+            setTimeout(function(){
+                startBlobUpload(unqName ,'/usr/demos/adventtracker/images/' + imageFile,"image");            
+            },1000);
         }
         
     }
 });
 function sendMessageToClient(key, value)
 {
+    console.log("[" + key + "=" + value + "]");
     if(_socket != null)_socket.emit(key,value);
 }
 
 var commandfile = "";
 fs.watch('/usr/demos/adventtracker/voice', function (event, filename) {
     //Need to add these conditions as fs.watch tend to file same event multiple times
-    if (event == "change" && commandfile != filename) {
+    if (event == "change" && commandfile != filename)
+    {
        //console.log('Image File: ' + filename);
         commandfile = filename;
         var stop = new Date().getTime();
         if(commandfile.indexOf("command") != -1)
         {
-            var commandvalue = fs.readFileSync("/usr/demos/adventtracker/voice/command.txt", "utf8");
+            var commandvalue = fs.readFileSync("/usr/demos/adventtracker/voice/" + filename, "utf8");
+            commandvalue = commandvalue.replace("\n","");
             console.log('Received Command : ' + commandvalue);
-            if(commandvalue == "findfaces")startImageProcessing("findfaces");
+            if(commandvalue == "findfaces")startImageProcessing("face");
             else if(commandvalue == "takepicture")startImageProcessing("picture");
             else if(commandvalue == "startrecording")startCaptureing();           
         }        
         else if(commandfile.indexOf("dictation") != -1)
         {
-            sendMessageToClient("dictation", fs.readFileSync(filename, "utf8"));
+            sendMessageToClient("dictation", fs.readFileSync('/usr/demos/adventtracker/voice/' + filename, "utf8"));
         }
-        
     }
 });
 
@@ -214,12 +223,13 @@ _videofilename =  getUniqueId() + '.mp4';
 function startCaptureing()
 {
     stopCapturing();
+    /*U0x46d0x825*/
     var params = [
         '-f', 'video4linux2',
         '-r', '22',
         '-i', '/dev/video0',
         '-f' ,'alsa',
-        '-i', 'plughw:U0x46d0x825,0',
+        '-i', 'plughw:U0x46d0x81b,0',
         '-ar', '22050',
         '-ab', '64k',
         '-strict', 'experimental', 
@@ -249,10 +259,11 @@ function stopCapturing()
 {
     setTimeout(function(){
         stream.kill();
-    },20000);
+    },10000);
 }
 function convertToWebMp4()
 {
+    _videofilename =  getUniqueId() + '.mp4';
     console.log(_videofilename);
     var paramsconvert = [
         '-i', '/output.mp4',
@@ -279,7 +290,9 @@ function convertToWebMp4()
     
     streamconvert.once('exit', function(exitCode, signal, metadata) {
         console.log("------------------COMPLETED CONVERSION----------------------------");
-        startBlobUpload(_videofilename.replace(".mp4",""),'/usr/demos/adventtracker/videos/' + _videofilename,"video");
+            setTimeout(function(){
+                startBlobUpload(_videofilename.replace(".mp4",""),'/usr/demos/adventtracker/videos/' + _videofilename,"video");
+            },1000);
     });
     
 }

@@ -1,7 +1,7 @@
 <!DOCTYPE html><!--HTML5 doctype-->
 <html>
 <head>
-	<title>Temperature Checker Companion App</title>
+	<title>Adventure Tracker Companion App</title>
 	<meta http-equiv="Content-type" content="text/html; charset=utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=0" />
 	<style type="text/css">
@@ -9,6 +9,18 @@
 		*  { -webkit-user-select:none; -webkit-tap-highlight-color:rgba(255, 255, 255, 0); }
 		input, textarea  { -webkit-user-select:text; }
 		body { background-color:white; color:black }
+        .face
+        {
+            width: 100px; height: 100px;
+        }
+        .picture
+        {
+                width: 320px; height: 280px;display: block;margin-left: auto; margin-right: auto;
+        }
+        .video
+        {
+            display: block;margin-left: auto; margin-right: auto;
+        }
 	</style>
     <!--  jQuery  -->
     <script src="lib/jquery/jquery-2.1.1.js"></script>
@@ -36,15 +48,15 @@
 <body>
 	<div id="afui">
         
-        <div id="content">
+        <div id="content"  style="overflow:auto;text-align:center;">
             
-            <div id="main" title="Adventure Tracker" class="panel" data-footer="none" id="documentcontainer">
+            <div id="main" title="Adventure Tracker" data-footer="none" style="overflow:auto;">
             </div>
             
             <div class="panel" data-title="Adventure Tracker Client" modal="true" selected="true">
                 <p>Connect to Adventure Tracker server.</p>
                 <p>
-                <input id="ip_address" type="text" placeholder="Enter your Adventure Tracker server IP Address" value="192.168.0.1">
+                <input id="ip_address" type="text" placeholder="Enter your Adventure Tracker server IP Address" value="192.168.0.102">
                 <input id="port" type="text" placeholder="Enter your corresponding port number" value="2001">
                 <a class="block button" onclick="validateIP()">Submit</a>
             </div>

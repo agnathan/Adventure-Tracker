@@ -193,18 +193,22 @@ fs.watch('/usr/demos/adventtracker/voice', function (event, filename) {
        //console.log('Image File: ' + filename);
         commandfile = filename;
         var stop = new Date().getTime();
-        if(commandfile.indexOf("command") != -1)
-        {
-            var commandvalue = fs.readFileSync("/usr/demos/adventtracker/voice/" + filename, "utf8");
-            commandvalue = commandvalue.replace("\n","");
-            console.log('Received Command : ' + commandvalue);
-            if(commandvalue == "findfaces")startImageProcessing("face");
-            else if(commandvalue == "takepicture")startImageProcessing("picture");
-            else if(commandvalue == "startrecording")startCaptureing();           
-        }        
-        else if(commandfile.indexOf("dictation") != -1)
-        {
-            sendMessageToClient("dictation", fs.readFileSync('/usr/demos/adventtracker/voice/' + filename, "utf8"));
+        try{
+            if(commandfile.indexOf("command") != -1)
+            {
+                var commandvalue = fs.readFileSync("/usr/demos/adventtracker/voice/" + filename, "utf8");
+                commandvalue = commandvalue.replace("\n","");
+                console.log('Received Command : ' + commandvalue);
+                if(commandvalue == "findfaces")startImageProcessing("face");
+                else if(commandvalue == "takepicture")startImageProcessing("picture");
+                else if(commandvalue == "startrecording")startCaptureing();           
+            }        
+            else if(commandfile.indexOf("dictation") != -1)
+            {
+                sendMessageToClient("dictation", fs.readFileSync('/usr/demos/adventtracker/voice/' + filename, "utf8"));
+            }
+            fs.unlink('/usr/demos/adventtracker/voice/' + filename);
+        }catch(ex){
         }
     }
 });

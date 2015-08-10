@@ -30,8 +30,7 @@ int main(int argc, const char* argv[]) {
 		try
 		{
 		system("exec rm -r /usr/demos/adventtracker/images/*");
-
-		VideoCapture capture(0); //0=default, -1=any camera, 1..99=your camera
+		VideoCapture capture(0);
 		capture.set(CV_CAP_PROP_FRAME_WIDTH, 320);
 		capture.set(CV_CAP_PROP_FRAME_HEIGHT, 240);
 		if (!capture.isOpened()) {
@@ -39,14 +38,10 @@ int main(int argc, const char* argv[]) {
 			return -1;
 		}
 		capture >> frame;
-
 		int uniqueNumber = rand() * 100;
 		std::stringstream temp;
-		std::stringstream ss1;
-
 		temp.str("");
 		temp << "/usr/demos/adventtracker/images/picture" << uniqueNumber << ".png";
-
 		imwrite(temp.str(), frame);
 
 		cout << "Finished writing" << endl;
@@ -66,11 +61,8 @@ int main(int argc, const char* argv[]) {
 			return -1;
 		};
 		try {
-		system("exec rm -r /usr/demos/adventtracker/images/*");
-		//for (counter = 0; counter < 2; counter++)
-		{
-			//printf("Take #: %d \n", counter);
-			VideoCapture capture(0); //0=default, -1=any camera, 1..99=your camera
+			system("exec rm -r /usr/demos/adventtracker/images/*");
+			VideoCapture capture(0);
 			capture.set(CV_CAP_PROP_FRAME_WIDTH, 320);
 			capture.set(CV_CAP_PROP_FRAME_HEIGHT, 240);
 			if (!capture.isOpened()) {
@@ -83,17 +75,9 @@ int main(int argc, const char* argv[]) {
 					findFaces(frame);
 			} else {
 				printf(" --(!) No captured frame -- Break!");
-				//break;
 			}
 			int c = waitKey(10);
 			capture.release();
-			/*
-			if ((char) c == 'c') {
-				capture.release();
-				break;
-			}
-			*/
-		}
 		} catch (cv::Exception ex) {
 			cout << ex.msg;
 		}
@@ -112,23 +96,10 @@ void findFaces(Mat frame) {
 
 	std::stringstream temp;
 	std::stringstream ss1;
-
-	//temp.str("");
-	//temp << "/usr/demos/adventtracker/images/picture" << counter << ".png";
-
-	//imwrite(temp.str(), frame);
-
 	ss1 << "{\"id\":" << counter << ",\"type\": \"original\",\"path\":" << "\""
 			<< temp.str() << "\"" << "}";
 
-	//Update file for reading from NodeJS
-	faceInfo.open("original.json");
-	faceInfo << ss1.str();
-	// close the opened file.
-	faceInfo.close();
-
 	cvtColor(frame, frame_gray, CV_BGR2GRAY);
-
 	equalizeHist(frame_gray, frame_gray);
 	//-- Detect faces
 	face_cascade.detectMultiScale(frame_gray, faces, 1.1, 2,

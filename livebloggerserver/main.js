@@ -38,6 +38,7 @@ var groveGas = require('jsupm_gas');
 var airQualityPin = new groveGas.TP401(1);
 
 client.on('connect', function () {
+    
   setInterval(function(){
       client.publish(TOPIC, '{"d":{"AirQuality":' + airQualityPin.getSample() + ', "Temperature":' + getTemperature() + '}}');
       var x = '{"d":{"AirQuality":' + airQualityPin.getSample() + ', "Temperature":' + getTemperature() + '}}';
@@ -101,15 +102,13 @@ var app = http.createServer(function (req, res) {
 var _socket;
 function startImageProcessing(type)
 {
-    
- childProcess.exec('/usr/demos/adventtracker/./imageprocessor \'' + type + '\'', function (error, stdout, stderr) {
+ childProcess.exec('/usr/demos/adventtracker/imageprocessor \'' + type + '\'', function (error, stdout, stderr) {
    if (error) {
      console.log(error.stack);
      console.log('OpenCv: '+error.code);
      console.log('OpenCv: '+error.signal);
    }
    console.log('OpenCv STDOUT: '+stdout);
-   console.log('OpenCv STDERR: '+stderr);
  });
 }
 
@@ -162,12 +161,13 @@ fs.watch('/usr/demos/adventtracker/images', function (event, filename) {
         {
             console.log('Sending image: ' + filename);
             unqName = "face_" +  getUniqueId(); 
-            startBlobUpload(uniqueName ,'/usr/demos/adventtracker/images/' + _videofilename,"image");            
+            startBlobUpload(unqName ,'/usr/demos/adventtracker/images/' + imageFile,"image");            
         }        
         else if(imageFile.indexOf("picture") != -1)
         {
             unqName = "picture_" +  getUniqueId(); 
-            startBlobUpload(uniqueName ,'/usr/demos/adventtracker/images/' + _videofilename,"image");            
+            console.log("Sending images from blog");
+            startBlobUpload(unqName ,'/usr/demos/adventtracker/images/' + imageFile,"image");            
         }
         
     }
@@ -183,19 +183,20 @@ fs.watch('/usr/demos/adventtracker/voice', function (event, filename) {
     if (event == "change" && commandfile != filename) {
        //console.log('Image File: ' + filename);
         commandfile = filename;
+        var stop = new Date().getTime();
         if(commandfile.indexOf("command") != -1)
         {
-            var commandvalue = fs.readFileSync(filename, "utf8");
+            var commandvalue = fs.readFileSync("/usr/demos/adventtracker/voice/command.txt", "utf8");
             console.log('Received Command : ' + commandvalue);
             if(commandvalue == "findfaces")startImageProcessing("findfaces");
             else if(commandvalue == "takepicture")startImageProcessing("picture");
-            else if(commandvalue == "startrecording")startCaptureing();
-            else if(commandvalue == "stoprecording")stopCapturing();            
+            else if(commandvalue == "startrecording")startCaptureing();           
         }        
         else if(commandfile.indexOf("dictation") != -1)
         {
             sendMessageToClient("dictation", fs.readFileSync(filename, "utf8"));
         }
+        
     }
 });
 
@@ -218,7 +219,7 @@ function startCaptureing()
         '-r', '22',
         '-i', '/dev/video0',
         '-f' ,'alsa',
-        '-i', 'plughw:U0x46d0x81b,0',
+        '-i', 'plughw:U0x46d0x825,0',
         '-ar', '22050',
         '-ab', '64k',
         '-strict', 'experimental', 

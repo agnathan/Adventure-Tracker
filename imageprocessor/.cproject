@@ -44,7 +44,7 @@
 							</tool>
 							<tool id="com.intel.iotdevkit.ide.tool.gnu.cross.c.linker.1921045763" name="Cross GCC Linker" superClass="com.intel.iotdevkit.ide.tool.gnu.cross.c.linker"/>
 							<tool id="com.intel.iotdevkit.ide.tool.gnu.cross.cpp.linker.691017572" name="Cross G++ Linker" superClass="com.intel.iotdevkit.ide.tool.gnu.cross.cpp.linker">
-								<option id="com.intel.iotdevkit.ide.gnu.cpp.option.link.misc.other.2118973764" name="Miscellaneous" superClass="com.intel.iotdevkit.ide.gnu.cpp.option.link.misc.other" value="${LDFLAGS} -lopencv_core -lopencv_imgproc -lopencv_objdetect -lopencv_calib3d -lcurl -std=c++11 -lopencv_highgui" valueType="string"/>
+								<option id="com.intel.iotdevkit.ide.gnu.cpp.option.link.misc.other.2118973764" name="Miscellaneous" superClass="com.intel.iotdevkit.ide.gnu.cpp.option.link.misc.other" value="${LDFLAGS} -lopencv_core -lopencv_imgproc -lopencv_objdetect -lopencv_calib3d -std=c++11 -lopencv_highgui" valueType="string"/>
 								<inputType id="cdt.managedbuild.tool.gnu.cpp.linker.input.6785851" superClass="cdt.managedbuild.tool.gnu.cpp.linker.input">
 									<additionalInput kind="additionalinputdependency" paths="$(USER_OBJS)"/>
 									<additionalInput kind="additionalinput" paths="$(LIBS)"/>

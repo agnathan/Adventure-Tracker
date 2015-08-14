@@ -4,17 +4,31 @@
 /*global window, document, d3, $, io, navigator, setTimeout */
 
 var socket;
-function StartImageCapture()
+function getUniqueId()
 {
-    socket.emit("startcapture","start");
+    return (new Date()).getTime();
 }
+
+
+function createVideo(videoUrl, source)
+{
+    var video = document.createElement('video');
+    video.setAttribute("controls","true");
+    video.src = source + "?time=" + getUniqueId();
+    video.id = videoUrl; 
+    video.className = "video";
+    video.autoPlay = true;
+    return video;
+}
+
 
 /*
 Function: validateIP()
 Parameter: none
 Description: Attempt to connect to server/Intel IoT platform
 */
-function validateIP() {
+
+function connectToServer() {
     'use strict';
 
     //Get values from text fields
@@ -46,37 +60,24 @@ function validateIP() {
             var azuremediaserver = "https://intelblobstorage.blob.core.windows.net/adventtracker/";
             socket.on("dictation", function (text) {
                 var dictation = document.createElement('div');
-                alert(text);
                 dictation.innerHTML = text;
                 documentcontainer.appendChild(dictation); 
             });
 
             socket.on("videourl", function (videoUrl) {
-                videoUrl += "?time=" + (new Date().getTime());
                 console.log(videoUrl);
-                documentcontainer.appendChild(createVideo(azuremediaserver + videoUrl));
+                var vid = document.getElementById(videoUrl);
+                if(vid != null)
+                {
+                    documentcontainer.replaceChild(createVideo(videoUrl, azuremediaserver + videoUrl),vid);
+                    //vid.load();
+                }
+                else
+                {
+                    documentcontainer.appendChild(createVideo(videoUrl, azuremediaserver + videoUrl));
+                }
             });
 
-                //createVideo('https://intelblobstorage.blob.core.windows.net/adventtruck/1437719774257?time=' + getUniqueId());
-                //createVideo('https://intelblobstorage.blob.core.windows.net/adventtruck/1437596492797?time=' + getUniqueId());
-            function getUniqueId()
-            {
-                return (new Date()).getTime();
-            }
-
-
-            function createVideo(source)
-            {
-                var video = document.createElement('video');
-                video.setAttribute("controls","true");
-                video.src = source;
-                video.id = + getUniqueId();
-                video.className = "video";
-                video.autoPlay = true;
-                return video;
-            }
-
-            
             //NOT BEING USED RIGHT NOW
             socket.on("faces", function (faces) {
                 var images = JSON.parse(faces);
@@ -99,32 +100,42 @@ function validateIP() {
             });
 
             socket.on("face", function (imageUrl) {
-                var imageUrl = imageUrl + "?time=" + (new Date().getTime());
                 console.log(imageUrl);
-                var img = document.createElement('img');
+                var img = null;
+                if(document.getElementById(imageUrl) == null)
+                {
+                    img = document.createElement('img');
+                    img.id = imageUrl;
+                    documentcontainer.appendChild(img);
+                }
+                else img = document.getElementById(imageUrl);
+                
+                imageUrl = imageUrl + "?time=" + getUniqueId();
                 img.src = azuremediaserver + imageUrl;
                 img.className = "face";
                 img.onload = function(){
-                    documentcontainer.appendChild(img);
                     console.log(img.src);
-                    img.style.width = "100px";
-                    img.style.height = "100px";
                     img = null;
                 }
             });
             
             socket.on("picture", function (imageUrl) {
-                var imageUrl = imageUrl + "?time=" + (new Date().getTime());
                 console.log(imageUrl);
-                var img = document.createElement('img');
+                var img = null;
+                if(document.getElementById(imageUrl) == null)
+                {
+                    img = document.createElement('img');
+                    img.id = imageUrl;                    
+                    documentcontainer.appendChild(img);
+                }
+                else img = document.getElementById(imageUrl);
+
+                imageUrl = imageUrl + "?time=" + getUniqueId();
                 img.src = azuremediaserver + imageUrl;
                 img.className = "picture";
                 img.style.display = "inline-block";
                 img.onload = function(){
-                    documentcontainer.appendChild(img);
                     console.log(img.src);
-                    img.style.width = "320px";
-                    img.style.height = "280px";
                     img = null;
                 }
             });
@@ -137,4 +148,5 @@ function validateIP() {
             );
         }
     }, 1000);
+
 }

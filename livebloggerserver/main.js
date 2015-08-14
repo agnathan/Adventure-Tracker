@@ -2,6 +2,7 @@
 var azure = require('azure-storage');
 
 var childProcess = require('child_process');
+var converterprocess = require('child_process');
 var fs = require("fs");
 var http = require('http');
 var sleep = require('sleep');
@@ -44,7 +45,7 @@ client.on('connect', function () {
       client.publish(TOPIC, '{"d":{"AirQuality":' + airQualityPin.getSample() + ', "Temperature":' + getTemperature() + '}}');
       var x = '{"d":{"AirQuality":' + airQualityPin.getSample() + ', "Temperature":' + getTemperature() + '}}';
       console.log(x);
-  }, 2000);//Keeps publishing every 2000 milliseconds.
+  }, 5000);//Keeps publishing every 2000 milliseconds.
 });
 
 var getTemperature = function()
@@ -131,7 +132,7 @@ function startBlobUpload(filename, filetoUpload, type)
            {
                if(type == "video") 
                {
-                   sendMessageToClient("videourl", filename);
+                    sendMessageToClient("videourl", filename);
                    _videofilename = "";
                }
                else if(type == "image")
@@ -164,6 +165,7 @@ fs.watch('/usr/demos/adventtracker/images', function (event, filename) {
         {
             console.log('Sending image: ' + filename);
             unqName = "face_" +  getUniqueId();
+            sendMessageToClient("face", unqName);
             sleep.sleep(1);
             startBlobUpload(unqName ,'/usr/demos/adventtracker/images/' + imageFile,"face");            
             
@@ -172,6 +174,7 @@ fs.watch('/usr/demos/adventtracker/images', function (event, filename) {
         {
             unqName = "picture_" +  getUniqueId(); 
             console.log("Sending images from blog");
+            sendMessageToClient("picture", unqName);
             setTimeout(function(){
                 startBlobUpload(unqName ,'/usr/demos/adventtracker/images/' + imageFile,"image");            
             },1000);
@@ -221,12 +224,15 @@ function getUniqueId()
 var avconv = require('avconv');
 var stream = null;
 var _videofilename = null;
-_videofilename =  getUniqueId() + '.mp4';
+_videofilename =  getUniqueId() + '.webm';
 //startCaptureing();
 //stopCapturing();
 function startCaptureing()
 {
     stopCapturing();
+    _videofilename =  getUniqueId() + '.webm';
+    sendMessageToClient("videourl", _videofilename.replace(".webm",""));
+
     /*U0x46d0x825*/
     var params = [
         '-f', 'video4linux2',
@@ -256,7 +262,7 @@ function startCaptureing()
         console.log("------------------COMPLETED CAPTURE----------------------------");
         console.log(exitCode);
         console.log(signal);
-        convertToWebMp4();
+        convertToWebM();
     });
 }
 function stopCapturing()
@@ -264,6 +270,27 @@ function stopCapturing()
     setTimeout(function(){
         stream.kill();
     },10000);
+}
+function convertToWebM()
+{
+    //_videofilename =  _videofilename + '.webm';
+    console.log("------------------WEBM CONVERSION STARTED----------------------------");
+    converterprocess.exec('/home/root/bin/ffmpeg/./ffmpeg -y -i /output.mp4 -vcodec libvpx -acodec libvorbis -s 320x240 -f webm -g 30 \'/usr/demos/adventtracker/videos/' + _videofilename  +'\'', function (error, stdout, stderr) {
+       if (error) {
+         console.log(error.stack);
+         console.log('OpenCv: '+error.code);
+         console.log('OpenCv: '+error.signal);
+         
+       }
+        else
+        {
+            console.log("------------------WEBM CONVERSION COMPLETED----------------------------");
+            setTimeout(function(){
+                startBlobUpload(_videofilename.replace(".webm",""),'/usr/demos/adventtracker/videos/' + _videofilename,"video");
+            },1000);
+        
+        }
+     });
 }
 function convertToWebMp4()
 {

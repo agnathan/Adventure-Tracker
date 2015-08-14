@@ -11,15 +11,15 @@
 		body { background-color:white; color:black }
         .face
         {
-            width: 100px; height: 100px;
+            width: 120px; height: 120px;padding: 20px;
         }
         .picture
         {
-                width: 320px; height: 280px;display: block;margin-left: auto; margin-right: auto;
+                width: 340px; height: 300px;display: block;margin-left: auto; margin-right: auto;padding: 20px;
         }
         .video
         {
-            display: block;margin-left: auto; margin-right: auto;
+            display: block;margin-left: auto; margin-right: auto;padding: 20px;
         }
 	</style>
     <!--  jQuery  -->
@@ -41,7 +41,7 @@
            if( window.Cordova && navigator.splashscreen ) {     // Cordova API detected
                 navigator.splashscreen.hide() ;                 // hide splash screen
             }
-        } ;
+        };
         document.addEventListener("deviceready", onDeviceReady, false) ;
     </script>
 </head>
@@ -58,10 +58,10 @@
                 <p>
                 <input id="ip_address" type="text" placeholder="Enter your Adventure Tracker server IP Address" value="192.168.0.102">
                 <input id="port" type="text" placeholder="Enter your corresponding port number" value="2001">
-                <a class="block button" onclick="validateIP()">Submit</a>
+                <a class="block button" onclick="connectToServer()">Submit</a>
             </div>
         </div>
     </div>
-</body>
 <script type="text/javascript" src="js/main.js"></script>
+</body>
 </html>
